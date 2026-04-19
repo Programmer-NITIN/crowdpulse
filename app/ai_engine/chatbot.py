@@ -122,7 +122,12 @@ def _build_grounded_context(intent: str) -> str:
             + "\n".join(f"- {i}" for i in VENUE_POLICY["prohibited_items"])
         ),
         "bag": f"Bag policy: {VENUE_POLICY['bag_policy']}",
-        "accessibility": "Accessibility services:\n" + "\n".join(f"- {s}" for s in VENUE_POLICY["accessibility_services"]),
+        "accessibility": (
+            "Accessibility services:\n"
+            + "\n".join(
+                f"- {s}" for s in VENUE_POLICY["accessibility_services"]
+            )
+        ),
         "reentry": f"Re-entry rules: {VENUE_POLICY['re_entry_rules']}",
         "restricted": f"Restricted areas: {VENUE_POLICY['restricted_areas']}",
         "timing": (
@@ -145,10 +150,16 @@ def _direct_response(intent: str) -> str:
     ctx = _build_grounded_context(intent)
     if ctx:
         return ctx
-    return "I don't have that information — please ask a steward or visit the Information Desk near Gate A."
+    return (
+        "I don't have that information — please ask a steward "
+        "or visit the Information Desk near Gate A."
+    )
 
 
-def get_chat_response(query: str, history: Optional[list] = None) -> tuple[str, Optional[str], bool]:
+def get_chat_response(
+    query: str,
+    history: Optional[list] = None,
+) -> tuple[str, Optional[str], bool]:
     """Returns (reply, intent, grounded) for the attendee's question.
 
     Flow:

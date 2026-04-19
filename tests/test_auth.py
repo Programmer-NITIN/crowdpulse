@@ -52,7 +52,8 @@ class TestAuthEndpoint:
         assert data["email"] == "webuser@mock.crowdpulse.dev"
 
     def test_invalid_token_returns_401(self):
-        resp = client.get("/auth/verify", headers={"Authorization": "Bearer real-token-no-firebase"})
+        headers = {"Authorization": "Bearer real-token-no-firebase"}
+        resp = client.get("/auth/verify", headers=headers)
         assert resp.status_code == 401
 
     def test_bearer_prefix_required(self):

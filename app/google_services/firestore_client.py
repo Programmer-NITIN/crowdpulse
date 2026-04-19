@@ -30,23 +30,28 @@ class _MockFirestoreStore:
         self._max = max_entries
 
     def set_document(self, collection: str, doc_id: str, data: Dict[str, Any]) -> None:
+        """Store a document in the mock collection."""
         key = f"{collection}/{doc_id}"
         self._data[key] = {**data, "_stored_at": time.time()}
         while len(self._data) > self._max:
             self._data.popitem(last=False)
 
     def get_document(self, collection: str, doc_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a document by collection and doc ID."""
         return self._data.get(f"{collection}/{doc_id}")
 
     def list_collection(self, collection: str) -> list[Dict[str, Any]]:
+        """List all documents in a collection."""
         prefix = f"{collection}/"
         return [v for k, v in self._data.items() if k.startswith(prefix)]
 
     def clear(self) -> None:
+        """Clear all stored documents."""
         self._data.clear()
 
     @property
     def size(self) -> int:
+        """Return the number of stored documents."""
         return len(self._data)
 
 

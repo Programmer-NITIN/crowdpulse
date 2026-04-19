@@ -12,24 +12,15 @@ Design: All functions fail gracefully to human-readable fallbacks.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Dict, List
 
-import google.generativeai as genai
-
-from app.config import settings, ZONE_REGISTRY
-from app.ai_engine.gemini_caller import call_gemini
+from app.config import ZONE_REGISTRY
+from app.ai_engine.gemini_caller import call_gemini, create_gemini_model
 
 logger = logging.getLogger(__name__)
 
 # ── Gemini singleton ─────────────────────────────────────────────────────────
-_model: Any = None
-
-if settings.gemini_api_key:
-    try:
-        genai.configure(api_key=settings.gemini_api_key)
-        _model = genai.GenerativeModel(settings.gemini_model)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        logger.error("StaffAdvisor: Gemini init failed: %s", exc)
+_model = create_gemini_model("StaffAdvisor")
 
 _STAFF_CONTEXT = """You are CrowdPulse AI Operations Advisor for a large cricket stadium.
 Analyze the provided real-time zone data and generate actionable crowd management recommendations.
@@ -162,7 +153,13 @@ def _fallback_briefing(density_map: Dict[str, int]) -> str:
     high = [z for z, d in density_map.items() if 60 <= d < 80]
 
     if critical:
-        return f"ALERT: {len(critical)} zones at critical capacity. Immediate intervention required."
+        return (
+            f"ALERT: {len(critical)} zones at critical capacity. "
+            "Immediate intervention required."
+        )
     if high:
-        return f"NOTE: {len(high)} zones at high capacity. Monitor closely and prepare diversion plans."
+        return (
+            f"NOTE: {len(high)} zones at high capacity. "
+            "Monitor closely and prepare diversion plans."
+        )
     return "All zones within normal operating range. Standard staffing levels are sufficient."

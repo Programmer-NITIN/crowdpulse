@@ -4,8 +4,9 @@ api/routes_auth.py
 Firebase Authentication routes — token verification and user identity.
 """
 
-from fastapi import APIRouter, HTTPException, Header
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Header
 
 from app.google_services.firebase_auth import verify_token
 

@@ -48,7 +48,12 @@ async def get_staff_dashboard():
                 "zone_id": zid,
                 "name": ZONE_REGISTRY[zid]["name"],
                 "current_density": density,
-                "status": "CRITICAL" if density >= 80 else "HIGH" if density >= 60 else "MEDIUM" if density >= 35 else "LOW",
+                "status": (
+                    "CRITICAL" if density >= 80
+                    else "HIGH" if density >= 60
+                    else "MEDIUM" if density >= 35
+                    else "LOW"
+                ),
             }
             for zid, density in density_map.items()
         ],

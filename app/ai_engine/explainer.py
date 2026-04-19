@@ -10,27 +10,13 @@ Design rules:
 """
 
 import logging
-from typing import Any
 
-import google.generativeai as genai
-
-from app.config import settings
-from app.ai_engine.gemini_caller import call_gemini
+from app.ai_engine.gemini_caller import call_gemini, create_gemini_model
 
 logger = logging.getLogger(__name__)
 
 # ── Module-level singleton ───────────────────────────────────────────────────
-_model: Any = None
-
-if settings.gemini_api_key:
-    try:
-        genai.configure(api_key=settings.gemini_api_key)
-        _model = genai.GenerativeModel(settings.gemini_model)
-        logger.info("Explainer: Gemini model '%s' ready.", settings.gemini_model)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        logger.error("Explainer: Failed to initialize Gemini: %s", exc)
-else:
-    logger.warning("Explainer: GEMINI_API_KEY not set — returning fallback explanations.")
+_model = create_gemini_model("Explainer")
 
 
 def get_ai_explanation(prompt: str) -> str:

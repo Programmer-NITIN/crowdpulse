@@ -161,27 +161,34 @@ class TestChatInputValidation:
 
 class TestNavigationInputValidation:
     _headers = {"X-Forwarded-For": "192.168.101.10"}
+    _url = "/navigate/suggest"
 
     def test_zone_id_too_long_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "current_zone": "Z" * 33}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "current_zone": "Z" * 33}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422
 
     def test_user_id_too_long_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "user_id": "u" * 65}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "user_id": "u" * 65}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422
 
     def test_too_many_constraints_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "constraints": ["c"] * 6}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "constraints": ["c"] * 6}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422
 
     def test_empty_user_id_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "user_id": ""}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "user_id": ""}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422
 
     def test_user_note_too_long_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "user_note": "n" * 257}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "user_note": "n" * 257}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422
 
     def test_empty_destination_rejected(self):
-        resp = client.post("/navigate/suggest", json={**_VALID_NAV_PAYLOAD, "destination": ""}, headers=self._headers)
+        payload = {**_VALID_NAV_PAYLOAD, "destination": ""}
+        resp = client.post(self._url, json=payload, headers=self._headers)
         assert resp.status_code == 422

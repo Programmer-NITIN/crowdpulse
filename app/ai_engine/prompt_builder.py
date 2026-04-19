@@ -13,8 +13,8 @@ from app.config import ZONE_REGISTRY
 
 
 def build_navigation_prompt(
-    current_zone: str,
-    destination: str,
+    _current_zone: str,
+    _destination: str,
     recommended_route: List[str],
     zone_scores: Dict[str, Dict[str, int]],
     density_map: Dict[str, int],
@@ -49,9 +49,15 @@ def build_navigation_prompt(
     route_densities = [density_map.get(z, 0) for z in recommended_route]
     max_d = max(route_densities) if route_densities else 0
     if max_d > 75:
-        vision_note = "IoT sensors detect significant congestion in key segments; Dijkstra re-weighted to avoid bottlenecks."
+        vision_note = (
+            "IoT sensors detect significant congestion in key segments; "
+            "Dijkstra re-weighted to avoid bottlenecks."
+        )
     elif max_d > 50:
-        vision_note = "Turnstile sensors monitoring moderate buildup; routing accounts for projected clearing."
+        vision_note = (
+            "Turnstile sensors monitoring moderate buildup; "
+            "routing accounts for projected clearing."
+        )
     else:
         vision_note = "IoT telemetry confirms nominal flow across all route segments."
 

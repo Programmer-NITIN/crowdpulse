@@ -15,7 +15,7 @@ from typing import Dict, Any
 
 
 def calculate_service_wait_time(
-    zone_id: str, zone_data: Dict[str, Any], density: int
+    _zone_id: str, zone_data: Dict[str, Any], density: int
 ) -> int:
     """Computes estimated wait time in minutes for a zone based on type and density."""
     if density < 20:

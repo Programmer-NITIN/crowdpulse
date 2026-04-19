@@ -7,12 +7,36 @@ Eliminates code duplication across explainer and staff_advisor modules.
 """
 
 import logging
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional, TypeVar
+
+import google.generativeai as genai
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 T = TypeVar("T")
+
+
+def create_gemini_model(caller_name: str) -> Optional[Any]:
+    """Create and return a configured GenerativeModel singleton.
+
+    Returns None if GEMINI_API_KEY is not set or initialization fails.
+    """
+    if not settings.gemini_api_key:
+        logger.warning(
+            "%s: GEMINI_API_KEY not set — using fallback.", caller_name
+        )
+        return None
+    try:
+        genai.configure(api_key=settings.gemini_api_key)
+        model = genai.GenerativeModel(settings.gemini_model)
+        logger.info(
+            "%s: Gemini model '%s' ready.", caller_name, settings.gemini_model
+        )
+        return model
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logger.error("%s: Gemini init failed: %s", caller_name, exc)
+        return None
 
 
 def call_gemini(

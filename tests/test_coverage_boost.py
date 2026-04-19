@@ -139,7 +139,8 @@ class TestChatbotLive:
         reply, intent, grounded = get_chat_response(
             "Tell me about quantum physics"
         )
-        assert "steward" in reply.lower() or "help desk" in reply.lower() or "difficulties" in reply.lower()
+        low = reply.lower()
+        assert "steward" in low or "help desk" in low or "difficulties" in low
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

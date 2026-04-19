@@ -55,7 +55,10 @@ class TestScorer:
 
 class TestRouter:
     def _make_scores(self, default_score=70):
-        return {z: {"score": default_score, "confidence_score": default_score} for z in ZONE_REGISTRY}
+        return {
+            z: {"score": default_score, "confidence_score": default_score}
+            for z in ZONE_REGISTRY
+        }
 
     def test_same_source_destination(self):
         route = find_best_route("GA", "GA", self._make_scores())
