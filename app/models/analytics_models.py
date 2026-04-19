@@ -8,8 +8,9 @@ and ensure consistent data contracts between backend and frontend.
 """
 
 from datetime import datetime
-from pydantic import BaseModel, Field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class LiveZoneStatus(BaseModel):

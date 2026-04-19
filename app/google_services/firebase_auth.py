@@ -21,14 +21,14 @@ _using_mock = True
 
 if settings.firebase_auth_enabled and settings.firebase_credentials_path:
     try:
-        import firebase_admin
-        from firebase_admin import credentials
+        import firebase_admin  # pylint: disable=import-outside-toplevel
+        from firebase_admin import credentials  # pylint: disable=import-outside-toplevel
 
         cred = credentials.Certificate(settings.firebase_credentials_path)
         _firebase_app = firebase_admin.initialize_app(cred)
         _using_mock = False
         logger.info("Firebase Auth: Initialized with service account.")
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("Firebase Auth: Init failed — using mock. Error: %s", exc)
 else:
     logger.info("Firebase Auth: Running in mock mode (FIREBASE_AUTH_ENABLED=false).")
@@ -51,10 +51,10 @@ def verify_token(id_token: str) -> Optional[Dict[str, Any]]:
         return None
 
     try:
-        from firebase_admin import auth
+        from firebase_admin import auth  # pylint: disable=import-outside-toplevel
         decoded = auth.verify_id_token(id_token)
         return decoded
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("Firebase Auth: Token verification failed: %s", exc)
         return None
 

@@ -8,8 +8,9 @@ Security bounds:
 - user_id: 1–64 chars.
 """
 
-from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class ChatHistoryItem(BaseModel):

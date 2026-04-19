@@ -17,10 +17,10 @@ from pydantic import BaseModel, Field
 class EventPhase(str, Enum):
     """Represents the current phase of the event, affecting crowd dynamics."""
 
-    entry = "entry"
-    live = "live"
-    halftime = "halftime"
-    exit = "exit"
+    ENTRY = "entry"
+    LIVE = "live"
+    HALFTIME = "halftime"
+    EXIT = "exit"
 
 
 class ZoneCrowdStatus(BaseModel):

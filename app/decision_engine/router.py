@@ -23,7 +23,7 @@ def _calculate_edge_cost(
     distance: int,
     score: int,
     constraints: Optional[List[str]],
-    priority: Priority = Priority.fast_exit,
+    priority: Priority = Priority.FAST_EXIT,
     neighbor_id: str = "",
     trend: str = "STABLE",
 ) -> int:
@@ -42,16 +42,16 @@ def _calculate_edge_cost(
         trend_penalty = -10
 
     # Priority-specific weighting
-    if priority in (Priority.fast_exit, Priority.fastest):
+    if priority in (Priority.FAST_EXIT, Priority.FASTEST):
         congestion_penalty = int(congestion_penalty * 0.4)
-    elif priority in (Priority.low_crowd, Priority.least_crowded):
+    elif priority in (Priority.LOW_CROWD, Priority.LEAST_CROWDED):
         congestion_penalty = int(congestion_penalty * 2.5)
         trend_penalty *= 2
-    elif priority == Priority.accessible:
+    elif priority == Priority.ACCESSIBLE:
         zone_data = ZONE_REGISTRY.get(neighbor_id, {})
         if not zone_data.get("accessible", True):
             congestion_penalty += 300  # Severe barrier
-    elif priority == Priority.family_friendly:
+    elif priority == Priority.FAMILY_FRIENDLY:
         zone_data = ZONE_REGISTRY.get(neighbor_id, {})
         if not zone_data.get("family_friendly", True):
             congestion_penalty += 150
@@ -74,7 +74,7 @@ def find_best_route(
     zone_scores: Dict[str, Dict[str, int]],
     predictions: Optional[Dict[str, Dict[str, Any]]] = None,
     constraints: Optional[List[str]] = None,
-    priority: Priority = Priority.fast_exit,
+    priority: Priority = Priority.FAST_EXIT,
 ) -> Optional[List[str]]:
     """Returns the optimal path as an ordered list of zone IDs, or None.
 

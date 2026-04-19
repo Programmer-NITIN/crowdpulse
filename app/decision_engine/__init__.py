@@ -1,1 +1,3 @@
-"""Decision engine package — scoring and pathfinding."""
+"""Decision Engine — Dijkstra-based routing and zone scoring."""
+
+__all__ = ["router", "scorer"]

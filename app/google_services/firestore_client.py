@@ -61,7 +61,7 @@ if settings.firestore_enabled and settings.gcp_project_id:
         _client = firestore.Client(project=settings.gcp_project_id)
         _using_mock = False
         logger.info("Firestore: Connected to project '%s'.", settings.gcp_project_id)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("Firestore: Live connection failed — using mock. Error: %s", exc)
 else:
     logger.info("Firestore: Running in mock mode (FIRESTORE_ENABLED=false).")
@@ -77,7 +77,7 @@ def store_document(collection: str, doc_id: str, data: Dict[str, Any]) -> None:
 
     try:
         _client.collection(collection).document(doc_id).set(data)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Firestore: Write failed — falling back to mock. %s", exc)
         _mock_store.set_document(collection, doc_id, data)
 
@@ -90,7 +90,7 @@ def get_document(collection: str, doc_id: str) -> Optional[Dict[str, Any]]:
     try:
         doc = _client.collection(collection).document(doc_id).get()
         return doc.to_dict() if doc.exists else None
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Firestore: Read failed — falling back to mock. %s", exc)
         return _mock_store.get_document(collection, doc_id)
 
@@ -103,7 +103,7 @@ def list_documents(collection: str) -> list[Dict[str, Any]]:
     try:
         docs = _client.collection(collection).stream()
         return [doc.to_dict() for doc in docs]
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Firestore: List failed — falling back to mock. %s", exc)
         return _mock_store.list_collection(collection)
 

@@ -26,7 +26,7 @@ if settings.maps_enabled and settings.maps_api_key:
         _client = googlemaps.Client(key=settings.maps_api_key)
         _using_mock = False
         logger.info("Maps: Connected with API key.")
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("Maps: Connection failed — using mock. Error: %s", exc)
 else:
     logger.info("Maps: Running in mock mode (MAPS_ENABLED=false).")
@@ -55,7 +55,7 @@ def get_walking_distance(origin_zone: str, dest_zone: str) -> int:
         )
         distance = result["rows"][0]["elements"][0]["distance"]["value"]
         return distance
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Maps: Distance request failed — using mock. %s", exc)
         return _mock_distance(origin_zone, dest_zone)
 

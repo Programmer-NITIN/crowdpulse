@@ -15,6 +15,7 @@ from typing import Any
 import google.generativeai as genai
 
 from app.config import settings
+from app.ai_engine.gemini_caller import call_gemini
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ if settings.gemini_api_key:
         genai.configure(api_key=settings.gemini_api_key)
         _model = genai.GenerativeModel(settings.gemini_model)
         logger.info("Explainer: Gemini model '%s' ready.", settings.gemini_model)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Explainer: Failed to initialize Gemini: %s", exc)
 else:
     logger.warning("Explainer: GEMINI_API_KEY not set — returning fallback explanations.")
@@ -37,18 +38,7 @@ def get_ai_explanation(prompt: str) -> str:
 
     The fallback ensures navigation responses never fail due to an AI outage.
     """
-    if _model is None:
-        return _fallback_explanation()
-
-    try:
-        response = _model.generate_content(
-            prompt,
-            request_options={"timeout": settings.gemini_timeout_seconds},
-        )
-        return response.text.strip()
-    except Exception as exc:
-        logger.error("Explainer: Gemini call failed: %s", exc)
-        return _fallback_explanation()
+    return call_gemini(_model, prompt, _fallback_explanation, "Explainer")
 
 
 def _fallback_explanation() -> str:

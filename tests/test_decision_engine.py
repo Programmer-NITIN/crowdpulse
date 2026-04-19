@@ -87,8 +87,8 @@ class TestRouter:
 
     def test_accessible_priority_avoids_inaccessible(self):
         scores = self._make_scores(70)
-        route_normal = find_best_route("GA", "ST", scores, priority=Priority.fast_exit)
-        route_access = find_best_route("GA", "ST", scores, priority=Priority.accessible)
+        route_normal = find_best_route("GA", "ST", scores, priority=Priority.FAST_EXIT)
+        route_access = find_best_route("GA", "ST", scores, priority=Priority.ACCESSIBLE)
         assert route_normal is not None
         assert route_access is not None
 
@@ -107,18 +107,18 @@ class TestRouter:
         assert wait_high > wait_low
 
     def test_edge_cost_low_crowd_amplifies_penalty(self):
-        cost_fast = _calculate_edge_cost(50, 30, None, Priority.fast_exit, "C1")
-        cost_low = _calculate_edge_cost(50, 30, None, Priority.low_crowd, "C1")
+        cost_fast = _calculate_edge_cost(50, 30, None, Priority.FAST_EXIT, "C1")
+        cost_low = _calculate_edge_cost(50, 30, None, Priority.LOW_CROWD, "C1")
         assert cost_low > cost_fast
 
     def test_edge_cost_avoid_crowd_constraint(self):
-        cost_normal = _calculate_edge_cost(50, 30, None, Priority.fast_exit, "C1")
-        cost_avoid = _calculate_edge_cost(50, 30, ["avoid_crowd"], Priority.fast_exit, "C1")
+        cost_normal = _calculate_edge_cost(50, 30, None, Priority.FAST_EXIT, "C1")
+        cost_avoid = _calculate_edge_cost(50, 30, ["avoid_crowd"], Priority.FAST_EXIT, "C1")
         assert cost_avoid > cost_normal
 
     def test_trend_penalty_increasing(self):
-        cost_stable = _calculate_edge_cost(50, 50, None, Priority.fast_exit, "C1", "STABLE")
-        cost_inc = _calculate_edge_cost(50, 50, None, Priority.fast_exit, "C1", "INCREASING")
+        cost_stable = _calculate_edge_cost(50, 50, None, Priority.FAST_EXIT, "C1", "STABLE")
+        cost_inc = _calculate_edge_cost(50, 50, None, Priority.FAST_EXIT, "C1", "INCREASING")
         assert cost_inc > cost_stable
 
     def test_route_ga_to_ms(self):

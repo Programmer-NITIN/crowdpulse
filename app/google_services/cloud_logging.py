@@ -27,7 +27,7 @@ if settings.cloud_logging_enabled and settings.gcp_project_id:
         _cloud_logger = client.logger("crowdpulse-server")
         _using_mock = False
         logger.info("Cloud Logging: Connected to project '%s'.", settings.gcp_project_id)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("Cloud Logging: Connection failed — using console. Error: %s", exc)
 else:
     logger.info("Cloud Logging: Running in console mode (CLOUD_LOGGING_ENABLED=false).")
@@ -55,7 +55,11 @@ def log_warning(message: str, payload: Optional[Dict[str, Any]] = None) -> None:
         logger.warning(message, extra=payload or {})
 
 
-def log_error(message: str, error: Optional[Exception] = None, payload: Optional[Dict[str, Any]] = None) -> None:
+def log_error(
+    message: str,
+    error: Optional[Exception] = None,
+    payload: Optional[Dict[str, Any]] = None,
+) -> None:
     """Log an error with optional exception context."""
     error_info = {}
     if error:

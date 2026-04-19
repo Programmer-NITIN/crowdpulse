@@ -17,6 +17,7 @@ from typing import Any, Dict, List
 import google.generativeai as genai
 
 from app.config import settings, ZONE_REGISTRY
+from app.ai_engine.gemini_caller import call_gemini
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ if settings.gemini_api_key:
     try:
         genai.configure(api_key=settings.gemini_api_key)
         _model = genai.GenerativeModel(settings.gemini_model)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("StaffAdvisor: Gemini init failed: %s", exc)
 
 _STAFF_CONTEXT = """You are CrowdPulse AI Operations Advisor for a large cricket stadium.
@@ -51,6 +52,15 @@ def _format_zone_summary(density_map: Dict[str, int]) -> str:
     return "\n".join(lines)
 
 
+def _parse_recommendations(text: str) -> List[str]:
+    """Parse numbered recommendations from Gemini's response text."""
+    recommendations = [
+        r.strip() for r in text.split("\n")
+        if r.strip() and r.strip()[0].isdigit()
+    ]
+    return recommendations if recommendations else [text]
+
+
 def generate_recommendations(density_map: Dict[str, int]) -> List[str]:
     """Generates 3–5 crowd management recommendations from live zone data.
 
@@ -68,17 +78,10 @@ CURRENT LIVE ZONE DATA:
 
 Generate 3–5 specific, actionable crowd management recommendations:"""
 
-    try:
-        response = _model.generate_content(
-            prompt,
-            request_options={"timeout": settings.gemini_timeout_seconds},
-        )
-        text = response.text.strip()
-        recommendations = [r.strip() for r in text.split("\n") if r.strip() and r.strip()[0].isdigit()]
-        return recommendations if recommendations else [text]
-    except Exception as exc:
-        logger.error("StaffAdvisor: recommendations failed: %s", exc)
+    raw = call_gemini(_model, prompt, lambda: "", "StaffAdvisor:recommendations")
+    if not raw:
         return _fallback_recommendations(density_map)
+    return _parse_recommendations(raw)
 
 
 def triage_alert(zone_id: str, density: int, density_map: Dict[str, int]) -> str:
@@ -104,18 +107,13 @@ ALL ZONE DATA:
 
 Assess this alert and suggest 2–3 immediate response actions:"""
 
-    try:
-        response = _model.generate_content(
-            prompt,
-            request_options={"timeout": settings.gemini_timeout_seconds},
-        )
-        return response.text.strip()
-    except Exception as exc:
-        logger.error("StaffAdvisor: triage failed: %s", exc)
+    def _triage_fallback() -> str:
         return (
             f"Automatic triage failed. Manual assessment required for {zone_name} "
             f"at {density}% capacity."
         )
+
+    return call_gemini(_model, prompt, _triage_fallback, "StaffAdvisor:triage")
 
 
 def generate_briefing(density_map: Dict[str, int]) -> str:
@@ -132,15 +130,12 @@ and staff deployment suggestions.
 CURRENT ZONE DATA:
 {zone_summary}"""
 
-    try:
-        response = _model.generate_content(
-            prompt,
-            request_options={"timeout": settings.gemini_timeout_seconds},
-        )
-        return response.text.strip()
-    except Exception as exc:
-        logger.error("StaffAdvisor: briefing failed: %s", exc)
-        return _fallback_briefing(density_map)
+    raw = call_gemini(
+        _model, prompt,
+        lambda: _fallback_briefing(density_map),
+        "StaffAdvisor:briefing",
+    )
+    return raw if raw else _fallback_briefing(density_map)
 
 
 def _fallback_recommendations(density_map: Dict[str, int]) -> List[str]:

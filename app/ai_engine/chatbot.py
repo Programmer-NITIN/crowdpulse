@@ -29,7 +29,7 @@ try:
         _model = genai.GenerativeModel(settings.gemini_model)
     else:
         logger.warning("Chatbot: Gemini not configured — structured-data-only mode.")
-except Exception as exc:
+except Exception as exc:  # pylint: disable=broad-exception-caught
     logger.error("Chatbot: Failed to initialise Gemini: %s", exc)
 
 
@@ -117,7 +117,10 @@ def _classify_intent(query_input: str) -> Optional[str]:
 def _build_grounded_context(intent: str) -> str:
     """Maps an intent to structured-data excerpt for Gemini grounding."""
     context_map = {
-        "prohibited": "Prohibited items:\n" + "\n".join(f"- {i}" for i in VENUE_POLICY["prohibited_items"]),
+        "prohibited": (
+            "Prohibited items:\n"
+            + "\n".join(f"- {i}" for i in VENUE_POLICY["prohibited_items"])
+        ),
         "bag": f"Bag policy: {VENUE_POLICY['bag_policy']}",
         "accessibility": "Accessibility services:\n" + "\n".join(f"- {s}" for s in VENUE_POLICY["accessibility_services"]),
         "reentry": f"Re-entry rules: {VENUE_POLICY['re_entry_rules']}",
@@ -193,7 +196,7 @@ def get_chat_response(query: str, history: Optional[list] = None) -> tuple[str, 
                 request_options={"timeout": settings.gemini_timeout_seconds},
             )
             return (response.text.strip(), intent, True)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.error("Chatbot: Gemini phrasing failed: %s", exc)
             return (_direct_response(intent), intent, True)
 
@@ -216,7 +219,7 @@ def get_chat_response(query: str, history: Optional[list] = None) -> tuple[str, 
             request_options={"timeout": settings.gemini_timeout_seconds},
         )
         return (response.text.strip(), None, False)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("Chatbot: Gemini fallback failed: %s", exc)
         return (
             "I'm experiencing technical difficulties. Please ask a steward or visit "

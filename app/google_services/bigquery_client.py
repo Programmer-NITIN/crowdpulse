@@ -73,7 +73,7 @@ if settings.bigquery_enabled and settings.gcp_project_id:
         _client = bigquery.Client(project=settings.gcp_project_id)
         _using_mock = False
         logger.info("BigQuery: Connected to project '%s'.", settings.gcp_project_id)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.warning("BigQuery: Connection failed — using mock. Error: %s", exc)
 else:
     logger.info("BigQuery: Running in mock mode (BIGQUERY_ENABLED=false).")
@@ -94,7 +94,7 @@ def get_historical_hotspots(top_n: int = 5) -> List[str]:
         return _mock_client.get_historical_hotspots(top_n)
 
     try:
-        from google.cloud import bigquery as bq
+        from google.cloud import bigquery as bq  # pylint: disable=import-outside-toplevel
 
         query = """
             SELECT zone_name, AVG(density) AS avg_density
@@ -110,7 +110,7 @@ def get_historical_hotspots(top_n: int = 5) -> List[str]:
         )
         results = _client.query(query, job_config=job_config).result()
         return [row.zone_name for row in results]
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("BigQuery: Hotspots query failed — using mock. %s", exc)
         return _mock_client.get_historical_hotspots(top_n)
 
@@ -125,7 +125,7 @@ def get_peak_density_history(zone_id: str) -> Dict[str, Any]:
         return _mock_client.get_peak_density_history(zone_id)
 
     try:
-        from google.cloud import bigquery as bq
+        from google.cloud import bigquery as bq  # pylint: disable=import-outside-toplevel
 
         query = """
             SELECT
@@ -152,7 +152,7 @@ def get_peak_density_history(zone_id: str) -> Dict[str, Any]:
                 "sample_count": row.sample_count,
             }
         return _mock_client.get_peak_density_history(zone_id)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("BigQuery: Peak density query failed — using mock. %s", exc)
         return _mock_client.get_peak_density_history(zone_id)
 

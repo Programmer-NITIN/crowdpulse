@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # ── Lifecycle ────────────────────────────────────────────────────────────────
 @asynccontextmanager
-async def lifespan(application: FastAPI):
+async def lifespan(_app: FastAPI):
     """Startup and shutdown hooks for the application."""
     log_info("CrowdPulse AI starting", {
         "version": settings.app_version,
@@ -125,5 +125,5 @@ app.include_router(routes_auth.router, tags=["Authentication"])
 # ── Static frontend ─────────────────────────────────────────────────────────
 try:
     app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     logger.warning("Frontend directory not found — API-only mode.")

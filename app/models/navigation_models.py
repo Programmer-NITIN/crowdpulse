@@ -10,9 +10,10 @@ Security bounds:
 - constraints:  max 5 items — prevents constraint explosion in the router.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
 from enum import Enum
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 from app.models.crowd_models import EventPhase
 
@@ -20,12 +21,12 @@ from app.models.crowd_models import EventPhase
 class Priority(str, Enum):
     """Route optimization strategy selected by the user."""
 
-    fast_exit = "fast_exit"
-    low_crowd = "low_crowd"
-    accessible = "accessible"
-    family_friendly = "family_friendly"
-    fastest = "fastest"
-    least_crowded = "least_crowded"
+    FAST_EXIT = "fast_exit"
+    LOW_CROWD = "low_crowd"
+    ACCESSIBLE = "accessible"
+    FAMILY_FRIENDLY = "family_friendly"
+    FASTEST = "fastest"
+    LEAST_CROWDED = "least_crowded"
 
 
 class NavigationRequest(BaseModel):
@@ -49,8 +50,8 @@ class NavigationRequest(BaseModel):
         max_length=32,
         description="Destination zone ID or name",
     )
-    priority: Priority = Priority.fast_exit
-    event_phase: EventPhase = EventPhase.live
+    priority: Priority = Priority.FAST_EXIT
+    event_phase: EventPhase = EventPhase.LIVE
     constraints: Optional[List[str]] = Field(
         default_factory=lambda: [],
         max_length=5,

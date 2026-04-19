@@ -56,6 +56,17 @@ class _SlidingWindowRateLimiter:
 
         window.append(now)
 
+    async def is_rate_limited(self, request: Request) -> bool:
+        """Check if the given IP would be rate-limited (non-raising).
+
+        Returns True if the request would be rejected, False otherwise.
+        """
+        ip = self._get_client_ip(request)
+        now = time.time()
+        window = self.store[ip]
+        self._prune(window, now)
+        return len(window) >= self.max_requests
+
 
 def make_rate_limiter(
     max_requests: int,
