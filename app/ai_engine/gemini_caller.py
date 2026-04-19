@@ -7,7 +7,7 @@ Eliminates code duplication across explainer and staff_advisor modules.
 """
 
 import logging
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, TypeVar
 
 import google.generativeai as genai
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
-def create_gemini_model(caller_name: str) -> Optional[Any]:
+def create_gemini_model(caller_name: str) -> Any | None:
     """Create and return a configured GenerativeModel singleton.
 
     Returns None if GEMINI_API_KEY is not set or initialization fails.

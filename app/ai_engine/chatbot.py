@@ -156,6 +156,7 @@ def _direct_response(intent: str) -> str:
     )
 
 
+# pylint: disable=too-many-return-statements
 def get_chat_response(
     query: str,
     history: Optional[list] = None,

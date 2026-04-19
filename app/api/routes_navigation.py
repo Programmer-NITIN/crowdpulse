@@ -14,15 +14,14 @@ The route planner is fully deterministic. AI is used only for explanation.
 import logging
 import uuid
 from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import ZONE_REGISTRY
 from app.crowd_engine.simulator import get_zone_density_map
 from app.crowd_engine.predictor import predict_all_zones
 from app.decision_engine.scorer import score_all_zones
-from app.decision_engine.router import find_best_route, estimate_wait_minutes
-from app.ai_engine.prompt_builder import build_navigation_prompt
+from app.decision_engine.router import find_best_route, estimate_wait_minutes, RouteContext
+from app.ai_engine.prompt_builder import build_navigation_prompt, NavigationContext
 from app.ai_engine.explainer import get_ai_explanation
 from app.google_services import firestore_client, maps_client
 from app.google_services.cloud_logging import log_info
@@ -58,6 +57,7 @@ def _resolve_zone(zone_input: str) -> str | None:
     summary="Compute optimal route between two zones",
     dependencies=[Depends(navigation_rate_limit)],
 )
+# pylint: disable=too-many-locals
 async def suggest_navigation(req: NavigationRequest):
     """Main navigation orchestrator.
 
@@ -97,14 +97,15 @@ async def suggest_navigation(req: NavigationRequest):
     # 4. Zone scoring
     zone_scores = score_all_zones(density_map, predictions, req.event_phase.value)
 
-    # 5. Dijkstra routing
     route = find_best_route(
         source,
         destination,
         zone_scores,
-        predictions,
-        req.constraints,
-        req.priority,
+        RouteContext(
+            predictions=predictions,
+            constraints=req.constraints,
+            priority=req.priority
+        )
     )
 
     if route is None:
@@ -121,9 +122,9 @@ async def suggest_navigation(req: NavigationRequest):
     ]
 
     # 7. Reasoning summary
-    avg_density = sum(density_map.values()) / len(density_map) if density_map else 0
+    avg_d = sum(density_map.values()) / len(density_map) if density_map else 0
     reasoning = ReasoningSummary(
-        density_factor=round(avg_density / 100, 2),
+        density_factor=round(avg_d / 100, 2),
         trend_factor=round(
             sum(1 for p in predictions.values() if p.get("trend") == "INCREASING")
             / max(len(predictions), 1),
@@ -134,8 +135,17 @@ async def suggest_navigation(req: NavigationRequest):
 
     # 8. AI explanation
     prompt = build_navigation_prompt(
-        source, destination, route, zone_scores, density_map,
-        predictions, wait_minutes, req.event_phase.value, req.priority.value,
+        NavigationContext(
+            current_zone=source,
+            destination=destination,
+            recommended_route=route,
+            zone_scores=zone_scores,
+            density_map=density_map,
+            predictions=predictions,
+            estimated_wait_minutes=wait_minutes,
+            event_phase=req.event_phase.value,
+            priority=req.priority.value,
+        )
     )
     ai_explanation = get_ai_explanation(prompt)
 

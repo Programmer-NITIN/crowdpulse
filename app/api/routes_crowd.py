@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.config import ZONE_REGISTRY
 from app.crowd_engine.simulator import get_zone_density_map, get_zone_crowd_detail
-from app.crowd_engine.predictor import predict_zone_density, predict_all_zones
+from app.crowd_engine.predictor import predict_zone_density, PredictContext, predict_all_zones
 from app.crowd_engine.wait_times import (
     calculate_service_wait_time,
     determine_wait_trend,
@@ -66,12 +66,15 @@ async def get_crowd_prediction(
         raise HTTPException(status_code=404, detail=f"Zone '{zone_id}' not found.")
 
     density_map = get_zone_density_map()
-    result = predict_zone_density(
-        zone_id,
-        density_map[zone_id],
+    ctx = PredictContext(
         inflow_rate=inflow_rate,
         outflow_rate=outflow_rate,
         event_phase=event_phase,
+    )
+    result = predict_zone_density(
+        zone_id,
+        density_map[zone_id],
+        ctx
     )
     return CrowdPredictionResponse(**result)
 

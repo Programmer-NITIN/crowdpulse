@@ -87,10 +87,12 @@ class TestEnginePerformance:
 
     def test_dijkstra_under_10ms(self):
         scores = {z: {"score": 50, "confidence_score": 50} for z in get_zone_density_map()}
-        start = time.monotonic()
+        from app.decision_engine.router import RouteContext
+        
+        start = time.perf_counter()
         for _ in range(100):
-            find_best_route("GA", "ST", scores)
-        avg_ms = (time.monotonic() - start) * 10
+            find_best_route("GA", "ST", scores, ctx=RouteContext())
+        avg_ms = (time.perf_counter() - start) * 10
         assert avg_ms < 10, f"Dijkstra avg {avg_ms:.2f}ms"
 
 

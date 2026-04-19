@@ -18,6 +18,7 @@ from app.crowd_engine.predictor import (
     predict_all_zones,
     _compute_time_delta,
     _net_trend,
+    PredictContext,
 )
 from app.crowd_engine.wait_times import (
     calculate_service_wait_time,
@@ -114,13 +115,13 @@ class TestSimulator:
 
 class TestPredictor:
     def test_predict_returns_required_fields(self):
-        result = predict_zone_density("GA", 50, datetime(2026, 4, 19, 16, 0))
+        result = predict_zone_density("GA", 50, PredictContext(now=datetime(2026, 4, 19, 16, 0)))
         assert "zone_id" in result
         assert "predicted_density" in result
         assert "trend" in result
 
     def test_predicted_density_bounded(self):
-        result = predict_zone_density("GA", 95, datetime(2026, 4, 19, 18, 0))
+        result = predict_zone_density("GA", 95, PredictContext(now=datetime(2026, 4, 19, 18, 0)))
         assert 0 <= result["predicted_density"] <= 100
 
     def test_trend_labels(self):
@@ -134,7 +135,9 @@ class TestPredictor:
             assert zone_id in preds
 
     def test_predict_with_inflow(self):
-        result = predict_zone_density("GA", 40, inflow_rate=20.0, outflow_rate=5.0)
+        result = predict_zone_density(
+            "GA", 40, PredictContext(inflow_rate=20.0, outflow_rate=5.0)
+        )
         assert result["flow_delta"] == 15
 
     def test_time_delta_approaching_peak(self):

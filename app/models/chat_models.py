@@ -8,7 +8,7 @@ Security bounds:
 - user_id: 1–64 chars.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -35,7 +35,7 @@ class ChatRequest(BaseModel):
         max_length=500,
         description="The attendee's question (1–500 chars)",
     )
-    history: Optional[List[ChatHistoryItem]] = Field(
+    history: Optional[list[ChatHistoryItem]] = Field(
         default_factory=list,
         description="Previous conversation turns for context (max 8).",
     )
@@ -53,7 +53,7 @@ class ChatResponse(BaseModel):
     """Response from the Event Assistant."""
 
     reply: str = Field(..., description="The assistant's response text")
-    intent: Optional[str] = Field(
+    intent: str | None = Field(
         None, description="Detected intent label (e.g. 'prohibited', 'timing')"
     )
     grounded: bool = Field(

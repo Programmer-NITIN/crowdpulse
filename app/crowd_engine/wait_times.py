@@ -26,11 +26,11 @@ def calculate_service_wait_time(
 
     if zone_type == "gate":
         return int(30 * (density_factor ** 2))
-    elif zone_type == "restroom":
+    if zone_type == "restroom":
         return int(15 * density_factor)
-    elif zone_type == "amenity":
+    if zone_type == "amenity":
         return int(25 * density_factor)
-    elif zone_type == "medical":
+    if zone_type == "medical":
         return int(20 * density_factor)
     return 0
 
@@ -40,7 +40,7 @@ def determine_wait_trend(density: int, prediction: Dict[str, Any]) -> str:
     pred_density = prediction.get("predicted_density", density)
     if pred_density > density + 5:
         return "INCREASING"
-    elif pred_density < density - 5:
+    if pred_density < density - 5:
         return "DECREASING"
     return "STABLE"
 
@@ -49,6 +49,6 @@ def get_wait_status(wait_minutes: int) -> str:
     """Classifies wait time into a category."""
     if wait_minutes < 5:
         return "LOW"
-    elif wait_minutes < 15:
+    if wait_minutes < 15:
         return "MODERATE"
     return "HIGH"

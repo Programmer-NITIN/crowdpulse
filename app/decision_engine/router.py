@@ -14,18 +14,25 @@ This is intentionally readable and well-documented for evaluation.
 
 import heapq
 from typing import List, Dict, Optional, Any
+from dataclasses import dataclass
 
 from app.config import ZONE_REGISTRY
 from app.models.navigation_models import Priority
+
+@dataclass
+class RouteContext:
+    """Context object carrying routing constraints and priorities."""
+    predictions: Optional[Dict[str, Dict[str, Any]]] = None
+    constraints: Optional[List[str]] = None
+    priority: Priority = Priority.FAST_EXIT
 
 
 def _calculate_edge_cost(
     distance: int,
     score: int,
-    constraints: Optional[List[str]],
-    priority: Priority = Priority.FAST_EXIT,
-    neighbor_id: str = "",
-    trend: str = "STABLE",
+    neighbor_id: str,
+    trend: str,
+    ctx: RouteContext,
 ) -> int:
     """Calculates the cost of traversing an edge.
 
@@ -42,26 +49,26 @@ def _calculate_edge_cost(
         trend_penalty = -10
 
     # Priority-specific weighting
-    if priority in (Priority.FAST_EXIT, Priority.FASTEST):
+    if ctx.priority in (Priority.FAST_EXIT, Priority.FASTEST):
         congestion_penalty = int(congestion_penalty * 0.4)
-    elif priority in (Priority.LOW_CROWD, Priority.LEAST_CROWDED):
+    elif ctx.priority in (Priority.LOW_CROWD, Priority.LEAST_CROWDED):
         congestion_penalty = int(congestion_penalty * 2.5)
         trend_penalty *= 2
-    elif priority == Priority.ACCESSIBLE:
+    elif ctx.priority == Priority.ACCESSIBLE:
         zone_data = ZONE_REGISTRY.get(neighbor_id, {})
         if not zone_data.get("accessible", True):
             congestion_penalty += 300  # Severe barrier
-    elif priority == Priority.FAMILY_FRIENDLY:
+    elif ctx.priority == Priority.FAMILY_FRIENDLY:
         zone_data = ZONE_REGISTRY.get(neighbor_id, {})
         if not zone_data.get("family_friendly", True):
             congestion_penalty += 150
         congestion_penalty = int(congestion_penalty * 1.5)
 
     # Constraint overrides
-    if constraints:
-        if "avoid_crowd" in constraints and score < 60:
+    if ctx.constraints:
+        if "avoid_crowd" in ctx.constraints and score < 60:
             congestion_penalty *= 6
-        if "prefer_fastest" in constraints:
+        if "prefer_fastest" in ctx.constraints:
             congestion_penalty = int(congestion_penalty * 0.1)
             trend_penalty = 0
 
@@ -72,9 +79,7 @@ def find_best_route(
     source: str,
     destination: str,
     zone_scores: Dict[str, Dict[str, int]],
-    predictions: Optional[Dict[str, Dict[str, Any]]] = None,
-    constraints: Optional[List[str]] = None,
-    priority: Priority = Priority.FAST_EXIT,
+    ctx: RouteContext,
 ) -> Optional[List[str]]:
     """Returns the optimal path as an ordered list of zone IDs, or None.
 
@@ -102,12 +107,12 @@ def find_best_route(
             if neighbor not in visited:
                 score = zone_scores.get(neighbor, {}).get("score", 50)
                 trend = (
-                    predictions.get(neighbor, {}).get("trend", "STABLE")
-                    if predictions
+                    ctx.predictions.get(neighbor, {}).get("trend", "STABLE")
+                    if ctx.predictions
                     else "STABLE"
                 )
                 edge_cost = _calculate_edge_cost(
-                    distance, score, constraints, priority, neighbor, trend
+                    distance, score, neighbor, trend, ctx
                 )
                 heapq.heappush(
                     pq, (current_cost + edge_cost, neighbor, path + [neighbor])

@@ -8,8 +8,6 @@ and ensure consistent data contracts between backend and frontend.
 """
 
 from datetime import datetime
-from typing import List, Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -30,16 +28,16 @@ class LiveZoneStatus(BaseModel):
 class AnalyticsResponse(BaseModel):
     """Aggregated analytics response for the staff dashboard."""
 
-    historical_hotspots: List[str] = Field(
+    historical_hotspots: list[str] = Field(
         ..., description="Names of historically most congested zones"
     )
-    live_leaderboard: List[LiveZoneStatus] = Field(
+    live_leaderboard: list[LiveZoneStatus] = Field(
         ..., description="All zones sorted by current density descending"
     )
     recommended_entry: str = Field(
         ..., description="Gate with the lowest current density"
     )
-    ai_recommendations: List[str] = Field(
+    ai_recommendations: list[str] = Field(
         default_factory=list,
         description="AI-generated crowd management recommendations",
     )
@@ -47,6 +45,6 @@ class AnalyticsResponse(BaseModel):
         default="",
         description="AI-generated operational summary for staff",
     )
-    timestamp: Optional[datetime] = Field(
+    timestamp: datetime | None = Field(
         default=None, description="Response generation timestamp"
     )

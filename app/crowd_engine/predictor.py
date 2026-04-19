@@ -14,9 +14,18 @@ Trend is derived from the NET combined delta.
 
 from datetime import datetime, timedelta
 from typing import Dict
+from dataclasses import dataclass
 
 from app.config import PEAK_HOUR_WINDOWS, ZONE_REGISTRY
 from app.crowd_engine.simulator import get_zone_density_map
+
+@dataclass
+class PredictContext:
+    """Context block carrying prediction baseline values."""
+    now: datetime | None = None
+    inflow_rate: float = 0.0
+    outflow_rate: float = 0.0
+    event_phase: str = "live"
 
 PREDICTION_WINDOW_MINUTES = 30
 _TREND_THRESHOLD = 3
@@ -79,21 +88,18 @@ def _compute_phase_delta(zone_id: str, event_phase: str) -> int:
 def predict_zone_density(
     zone_id: str,
     current_density: int,
-    now: datetime | None = None,
-    inflow_rate: float = 0.0,
-    outflow_rate: float = 0.0,
-    event_phase: str = "live",
+    ctx: PredictContext,
 ) -> Dict:
     """Predicts crowd density for a zone 30 minutes from now.
 
     Combines time-based (peak-hour) and flow-based signals additively.
     Returns a dict with zone_id, predicted_density, trend, and diagnostics.
     """
-    now = now or datetime.now()
+    now = ctx.now or datetime.now()
 
     time_delta = _compute_time_delta(now)
-    flow_delta = _compute_flow_delta(inflow_rate, outflow_rate)
-    phase_delta = _compute_phase_delta(zone_id, event_phase)
+    flow_delta = _compute_flow_delta(ctx.inflow_rate, ctx.outflow_rate)
+    phase_delta = _compute_phase_delta(zone_id, ctx.event_phase)
 
     net_delta = time_delta + flow_delta + phase_delta
     predicted = max(0, min(100, current_density + net_delta))
@@ -105,8 +111,8 @@ def predict_zone_density(
         "predicted_density": predicted,
         "trend": trend,
         "prediction_window_minutes": PREDICTION_WINDOW_MINUTES,
-        "inflow_rate": inflow_rate,
-        "outflow_rate": outflow_rate,
+        "inflow_rate": ctx.inflow_rate,
+        "outflow_rate": ctx.outflow_rate,
         "flow_delta": flow_delta,
     }
 
@@ -134,10 +140,12 @@ def predict_all_zones(
         zone_id: predict_zone_density(
             zone_id,
             density,
-            now,
-            inflow_rate=flow_rates.get(zone_id, {}).get("inflow_rate", 0.0),
-            outflow_rate=flow_rates.get(zone_id, {}).get("outflow_rate", 0.0),
-            event_phase=event_phase,
+            PredictContext(
+                now=now,
+                inflow_rate=flow_rates.get(zone_id, {}).get("inflow_rate", 0.0),
+                outflow_rate=flow_rates.get(zone_id, {}).get("outflow_rate", 0.0),
+                event_phase=event_phase,
+            )
         )
         for zone_id, density in density_map.items()
     }

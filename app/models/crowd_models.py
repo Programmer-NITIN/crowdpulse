@@ -9,7 +9,6 @@ is self-describing for judges and API consumers.
 
 from datetime import datetime
 from enum import Enum
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -48,7 +47,7 @@ class CrowdStatusResponse(BaseModel):
     timestamp: datetime = Field(
         ..., description="Server-side time when the snapshot was generated"
     )
-    zones: List[ZoneCrowdStatus] = Field(
+    zones: list[ZoneCrowdStatus] = Field(
         ..., description="List of all zone status objects"
     )
 
@@ -87,6 +86,6 @@ class WaitTimeResponse(BaseModel):
     """Response containing live service availability and wait-time estimations."""
 
     timestamp: datetime = Field(..., description="Generation timestamp")
-    services: List[ServiceWaitTime] = Field(
+    services: list[ServiceWaitTime] = Field(
         ..., description="List of service wait-time objects"
     )
