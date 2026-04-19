@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CrowdPulse AI — Intelligent crowd navigation for large-scale sporting venues. Real-time density tracking, AI-powered routing, and predictive analytics.">
+    <title>CrowdPulse AI | Intelligent Venue Navigation</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="fade-in">
+    <a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+    <!-- Ambient Background -->
+    <div class="background-effects" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <header class="glass-nav">
+        <div class="logo">
+            <div class="logo-icon" aria-hidden="true">CP</div>
+            <span class="gradient-text text-glow">CrowdPulse AI</span>
+        </div>
+        <nav class="nav-links" aria-label="Main Navigation">
+            <button id="staff-toggle-btn" class="nav-chip" aria-pressed="false" aria-controls="staff-view-container">Operations Control</button>
+            <span class="status-badge" id="system-status">System Active</span>
+        </nav>
+    </header>
+
+    <main id="main-content" class="container" aria-label="Venue Intelligence Console">
+
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title" class="gradient-text text-glow">Intelligent Venue Navigation</h1>
+            <p class="subtitle text-glow" style="opacity:0.8;">Deterministic crowd-aware routing powered by Gemini and Dijkstra heuristics.</p>
+        </section>
+
+        <!-- Main Dashboard View -->
+        <div class="grid layout-grid" id="attendee-view-container">
+
+            <!-- Left Panel: Route Planner -->
+            <section class="card glass-panel fade-in" aria-label="Route Selection">
+                <div class="card-header">
+                    <h2 class="card-title"><span class="accent-gradient-text">Route Planner</span></h2>
+                </div>
+
+                <div id="insights-badge" class="insights-banner" aria-live="polite">
+                    <div class="pulse-indicator"></div>
+                    <span id="insight-text">Syncing live density telemetry...</span>
+                </div>
+
+                <form id="route-form">
+                    <div id="form-error" class="error-banner d-none" role="alert" aria-live="assertive"></div>
+
+                    <fieldset class="input-group">
+                        <legend class="sr-only">Route Parameters</legend>
+
+                        <div class="input-field">
+                            <label for="current_zone">Origin Zone</label>
+                            <select id="current_zone" required aria-describedby="current_zone_help">
+                                <option value="" disabled selected>Loading zones...</option>
+                            </select>
+                            <span id="current_zone_help" class="sr-only">Select your current location in the stadium</span>
+                        </div>
+
+                        <div class="input-field">
+                            <label for="destination">Target Destination</label>
+                            <select id="destination" required aria-describedby="destination_help">
+                                <option value="" disabled selected>Loading zones...</option>
+                            </select>
+                            <span id="destination_help" class="sr-only">Select where you want to go</span>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="input-group">
+                        <legend class="sr-only">Navigation Preferences</legend>
+
+                        <div class="input-field">
+                            <label for="priority">Navigation Protocol</label>
+                            <select id="priority">
+                                <option value="fast_exit">Delta-Fast (Lowest Latency)</option>
+                                <option value="low_crowd">Buffer-Zone (Lowest Density)</option>
+                                <option value="accessible">Accessibility Alpha (No Stairs)</option>
+                                <option value="family_friendly">Group Flow (Wide Corridors)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-field">
+                            <label>Heuristic Overrides</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label" for="constraint-avoid">
+                                    <input type="checkbox" id="constraint-avoid"> Zero-Crowd Preference
+                                </label>
+                                <label class="checkbox-label" for="constraint-fastest">
+                                    <input type="checkbox" id="constraint-fastest"> Pure Distance Metric
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Predictive Time Slider -->
+                    <div class="input-group time-machine-panel">
+                        <label for="time-slider" style="display:flex;justify-content:space-between;">
+                            <span>Predictive Intelligence</span>
+                            <span id="time-display" style="color:var(--accent-blue);">Live Now</span>
+                        </label>
+                        <input type="range" id="time-slider" min="0" max="60" step="15" value="0" aria-label="Prediction window in minutes" />
+                        <p id="time-slider-help" class="help-text">Visualizing future crowd shifts based on match phase.</p>
+                    </div>
+
+                    <button type="submit" class="btn primary-btn w-full" id="submit-btn" style="margin-top:2rem;">
+                        <span id="btn-text">Compute Optimal Path</span>
+                        <div class="spinner d-none" id="btn-spinner" aria-hidden="true"></div>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Panel: Results -->
+            <section class="results-panel" aria-label="Route Findings">
+
+                <div id="empty-state" class="empty-state glass-panel fade-in">
+                    <div class="empty-icon" aria-hidden="true">📍</div>
+                    <h3 class="gradient-text">Engine Idle</h3>
+                    <p>Provide origin and target parameters to compute the optimized flow state.</p>
+                </div>
+
+                <div id="results-display" class="d-none">
+
+                    <!-- Route Visualization -->
+                    <div class="card glass-panel map-card fade-in">
+                        <div class="route-header">
+                            <h3 class="card-title mb-0">Venue Spatial View</h3>
+                            <div class="wait-time-badge" id="route-distance-badge">-- m</div>
+                        </div>
+                        <div class="map-container" id="map-venue-view" role="img" aria-label="SVG Map showing calculated navigation path"></div>
+                    </div>
+
+                    <!-- Route Path -->
+                    <div class="card glass-panel" aria-labelledby="results-header">
+                        <div class="route-header">
+                            <h2 id="results-header" class="card-title m-0">Computed Path</h2>
+                            <div class="wait-time-badge" id="wait-time-display" aria-label="Estimated arrival time">-- mins</div>
+                        </div>
+                        <div class="route-timeline" id="route-timeline" aria-label="Route stages"></div>
+                    </div>
+
+                    <!-- AI Explanation -->
+                    <section class="card glass-panel ai-card fade-in" aria-labelledby="ai-title">
+                        <h3 id="ai-title" class="card-title mb-3">
+                            <span class="ai-sparkle" aria-hidden="true">✨</span> Agent Reasoning
+                        </h3>
+                        <p id="ai-explanation" class="ai-text"></p>
+
+                        <div class="metrics-grid" style="margin-top:2rem;" aria-label="AI scoring factors">
+                            <div class="metric-card">
+                                <span class="metric-label">Density</span>
+                                <div class="progress-bar"><div class="progress-fill" id="bar-density" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Trend</span>
+                                <div class="progress-bar"><div class="progress-fill" id="bar-trend" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Event</span>
+                                <div class="progress-bar"><div class="progress-fill" id="bar-event" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+
+        <!-- Staff Operations View -->
+        <section id="staff-view-container" class="d-none" aria-label="Staff Operations Control">
+            <div class="hero text-center">
+                <h2 class="accent-gradient-text" style="font-size:3rem;">Operations Dashboard</h2>
+                <p class="subtitle">BigQuery-driven spatial insights and live telemetry.</p>
+            </div>
+
+            <div class="status-grid" style="margin-top:3rem;">
+                <div class="card glass-panel">
+                    <h3 class="card-title" style="color:var(--accent-orange);">Strategic Hotspots</h3>
+                    <ul id="staff-hotspots-list" class="metric-list"></ul>
+                </div>
+                <div class="card glass-panel">
+                    <h3 class="card-title" style="color:var(--accent-blue);">AI Recommendations</h3>
+                    <ul id="staff-recommendations-list" class="metric-list"></ul>
+                </div>
+            </div>
+            <div class="card glass-panel" style="margin-top:2rem;">
+                <h3 class="card-title" style="color:var(--accent-teal);">Operational Briefing</h3>
+                <p id="staff-briefing" class="ai-text">Loading...</p>
+            </div>
+            <div class="card glass-panel" style="margin-top:2rem;">
+                <h3 class="card-title">Live Density Leaderboard</h3>
+                <ul id="staff-leaderboard-list" class="metric-list"></ul>
+            </div>
+        </section>
+
+        <!-- Live Telemetry Grid -->
+        <section class="live-status fade-in" style="margin-top:5rem;" aria-labelledby="telemetry-title">
+            <h2 id="telemetry-title" class="card-title gradient-text text-glow">Live Node Telemetry</h2>
+            <div class="status-grid" id="status-grid">
+                <div class="zone-status-card glass-panel skeleton" style="height:160px;"></div>
+                <div class="zone-status-card glass-panel skeleton" style="height:160px;"></div>
+                <div class="zone-status-card glass-panel skeleton" style="height:160px;"></div>
+            </div>
+        </section>
+
+        <!-- Wait Times Grid -->
+        <section class="wait-times-section fade-in" style="margin-top:3rem;" aria-labelledby="services-title">
+            <h2 id="services-title" class="card-title gradient-text text-glow">Service Availability</h2>
+            <div class="status-grid" id="wait-times-grid">
+                <div class="zone-status-card glass-panel skeleton" style="height:140px;"></div>
+                <div class="zone-status-card glass-panel skeleton" style="height:140px;"></div>
+                <div class="zone-status-card glass-panel skeleton" style="height:140px;"></div>
+            </div>
+        </section>
+
+        <div id="sr-announcer" class="sr-only" aria-live="polite"></div>
+    </main>
+
+    <footer class="container footer-bar">
+        <span>&copy; 2026 CrowdPulse AI. All rights reserved.</span>
+        <span>v1.0.0 | High Availability Engine</span>
+    </footer>
+
+    <!-- Chat Widget -->
+    <button id="chat-toggle-btn" class="chat-toggle-btn" aria-label="Open Event Assistant" aria-expanded="false">
+        <span>🤖</span>
+    </button>
+    <div id="chat-widget" class="chat-widget glass-panel d-none" role="dialog" aria-labelledby="chat-title">
+        <div class="chat-header">
+            <h3 id="chat-title" class="m-0 accent-gradient-text" style="font-size:1.2rem;">Event Assistant</h3>
+            <button id="chat-close-btn" class="chat-close-btn" aria-label="Close Assistant">✖</button>
+        </div>
+        <div id="chat-feed" class="chat-feed" aria-live="polite">
+            <div class="chat-msg ai-msg">
+                Welcome to CrowdPulse AI. I'm your context-aware venue assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chat-suggestions">
+            <button class="chat-chip">Security Policy</button>
+            <button class="chat-chip">Accessible Exits</button>
+            <button class="chat-chip">Food Court Queue</button>
+            <button class="chat-chip">Lost Property</button>
+        </div>
+        <form id="chat-form" class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask a question..." required aria-label="Message the assistant" maxlength="500" />
+            <button type="submit" class="btn primary-btn" style="min-height:40px;">Send</button>
+        </form>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
