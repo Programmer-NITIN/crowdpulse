@@ -1,18 +1,13 @@
 """
-tests/test_coverage_boost.py
-------------------------------
-Comprehensive tests targeting ALL uncovered lines across the codebase.
+tests/test_google_services_mocked.py
+--------------------------------------
+Tests that simulate live Google Cloud service connections using
+unittest.mock.patch, covering all fallback and error-handling paths.
 
-Uses unittest.mock.patch to simulate live Google service connections
-and Gemini API calls without requiring real API keys or network access.
-
-This file covers:
-- AI Engine: explainer, chatbot, staff_advisor, gemini_caller
-- Google Services: firestore, bigquery, cloud_logging, firebase_auth, maps
-- Decision Engine: router edge cases, scorer edge cases
-- Crowd Engine: predictor, simulator, wait_times, cache edge cases
-- Config: Settings validators
-- Prompt Builder: density-level branches
+Uses mocking to verify behaviour when live backends (Firestore, BigQuery,
+Maps, Cloud Logging, Firebase Auth) return data *or* raise exceptions,
+ensuring the graceful-degradation pattern works correctly without
+requiring real API keys or network access.
 """
 
 from datetime import datetime

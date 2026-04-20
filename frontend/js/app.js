@@ -63,10 +63,15 @@ const attendeeContainer= $("#attendee-view-container");
 
 // ── State ────────────────────────────────────────────────────────────────────
 let zonesPopulated = false;
-let chatHistory    = [];
+const chatHistory  = [];
 let currentRoute   = null;
 
 // ── Accessible Announcer ─────────────────────────────────────────────────────
+/**
+ * Sends a message to the screen-reader live region.
+ * Clears then re-sets the text so assistive tech re-announces it.
+ * @param {string} msg - Text to announce.
+ */
 function announce(msg) {
     if (srAnnouncer) {
         srAnnouncer.textContent = "";
@@ -75,6 +80,13 @@ function announce(msg) {
 }
 
 // ── API Helpers ──────────────────────────────────────────────────────────────
+/**
+ * Fetches JSON from the backend API.
+ * @param {string} url - Endpoint path (e.g. "/crowd/status").
+ * @param {RequestInit} [opts] - Optional fetch overrides (method, body, etc.).
+ * @returns {Promise<Object>} Parsed JSON response.
+ * @throws {Error} If the response is not OK.
+ */
 async function fetchJSON(url, opts = {}) {
     const resp = await fetch(API_BASE + url, {
         headers: { "Content-Type": "application/json" },
@@ -88,6 +100,11 @@ async function fetchJSON(url, opts = {}) {
 }
 
 // ── Populate Zone Selects ────────────────────────────────────────────────────
+/**
+ * Populates the origin and destination select elements with zone options.
+ * Called once when the first crowd status response arrives.
+ * @param {Array<{zone_id: string, name: string}>} zones - Zone list from the API.
+ */
 function populateSelects(zones) {
     if (zonesPopulated) return;
     zonesPopulated = true;
@@ -206,6 +223,11 @@ routeForm.addEventListener("submit", async (e) => {
 });
 
 // ── Render Results ───────────────────────────────────────────────────────────
+/**
+ * Renders the full navigation result: route timeline, AI explanation,
+ * scoring metrics, and SVG map visualisation.
+ * @param {Object} data - NavigationResponse from the backend.
+ */
 function renderResults(data) {
     emptyState.classList.add("d-none");
     resultsDisplay.classList.remove("d-none");
@@ -244,6 +266,11 @@ function renderResults(data) {
     renderRouteMap(data);
 }
 
+/**
+ * Animates a progress bar element to the given percentage.
+ * @param {HTMLElement} el - The progress bar fill element.
+ * @param {number} pct - Target percentage (0–100).
+ */
 function animateBar(el, pct) {
     el.style.width = "0%";
     requestAnimationFrame(() => {
@@ -340,6 +367,11 @@ chatForm.addEventListener("submit", async (e) => {
     }
 });
 
+/**
+ * Appends a chat message bubble to the chat feed and scrolls to bottom.
+ * @param {string} text - Message text to display.
+ * @param {string} cls - CSS class: 'user-msg' or 'ai-msg'.
+ */
 function appendChatMsg(text, cls) {
     const div = document.createElement("div");
     div.className = `chat-msg ${cls}`;

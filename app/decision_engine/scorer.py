@@ -13,7 +13,16 @@ Score formula:
 
 from typing import Dict
 
+from typing_extensions import TypedDict
+
 from app.config import ZONE_REGISTRY
+
+
+class ZoneScore(TypedDict):
+    """Structured return type for a single zone's score breakdown."""
+
+    score: int
+    confidence_score: int
 
 
 def _calculate_trend_adjustment(trend: str) -> int:
@@ -55,8 +64,8 @@ def score_zone(
     current_density: int,
     trend: str,
     event_phase: str = "live",
-) -> Dict[str, int]:
-    """Returns {score, confidence_score} for a zone (both 0–100)."""
+) -> ZoneScore:
+    """Returns a ZoneScore with score and confidence_score (both 0–100)."""
     base_score = 100 - current_density
     raw = (
         base_score
@@ -72,8 +81,8 @@ def score_all_zones(
     density_map: Dict[str, int],
     predictions: Dict[str, Dict],
     event_phase: str = "live",
-) -> Dict[str, Dict[str, int]]:
-    """Returns {zone_id: {score, confidence_score}} for all zones."""
+) -> Dict[str, ZoneScore]:
+    """Returns {zone_id: ZoneScore} for all zones."""
     return {
         zone_id: score_zone(
             zone_id,

@@ -16,8 +16,23 @@ from datetime import datetime, timedelta
 from typing import Dict
 from dataclasses import dataclass
 
+from typing_extensions import TypedDict
+
 from app.config import PEAK_HOUR_WINDOWS, ZONE_REGISTRY
 from app.crowd_engine.simulator import get_zone_density_map
+
+
+class ZonePrediction(TypedDict):
+    """Structured return type for a single zone's density prediction."""
+
+    zone_id: str
+    current_density: int
+    predicted_density: int
+    trend: str
+    prediction_window_minutes: int
+    inflow_rate: float
+    outflow_rate: float
+    flow_delta: int
 
 @dataclass
 class PredictContext:
@@ -89,11 +104,12 @@ def predict_zone_density(
     zone_id: str,
     current_density: int,
     ctx: PredictContext,
-) -> Dict:
+) -> ZonePrediction:
     """Predicts crowd density for a zone 30 minutes from now.
 
     Combines time-based (peak-hour) and flow-based signals additively.
-    Returns a dict with zone_id, predicted_density, trend, and diagnostics.
+    Returns a ZonePrediction dict with zone_id, predicted_density, trend,
+    and diagnostic fields.
     """
     now = ctx.now or datetime.now()
 
@@ -122,7 +138,7 @@ def predict_all_zones(
     flow_rates: Dict[str, Dict[str, float]] | None = None,
     event_phase: str = "live",
     density_map: Dict[str, int] | None = None,
-) -> Dict[str, Dict]:
+) -> Dict[str, ZonePrediction]:
     """Returns predictions for every zone as {zone_id: prediction_dict}.
 
     Args:

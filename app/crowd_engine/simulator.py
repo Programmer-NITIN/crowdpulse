@@ -15,7 +15,7 @@ Design:
 import random
 import math
 from datetime import datetime
-from typing import Dict
+from typing import Any, Dict
 
 from app.config import ZONE_REGISTRY, PEAK_HOUR_WINDOWS, DENSITY_STATUS_MAP
 from app.crowd_engine.cache import crowd_cache
@@ -99,7 +99,7 @@ def get_zone_density_map(
     return result
 
 
-def get_zone_crowd_detail(zone_id: str, density_map: Dict[str, int]) -> Dict:
+def get_zone_crowd_detail(zone_id: str, density_map: Dict[str, int]) -> Dict[str, Any]:
     """Returns a fully enriched dict for one zone, ready for the API response.
 
     Raises KeyError if the zone_id is unknown.

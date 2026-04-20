@@ -154,7 +154,7 @@ pytest tests/test_performance.py -v
 pytest tests/ -v --cov=app --cov-report=term-missing
 ```
 
-### Test Categories (302 tests, 81% coverage)
+### Test Categories (366 tests, 94% coverage)
 
 | File | Tests | Coverage |
 |------|-------|----------|
@@ -164,7 +164,8 @@ pytest tests/ -v --cov=app --cov-report=term-missing
 | `test_decision_engine.py` | 30+ | Scorer, Dijkstra router, edge costs |
 | `test_chatbot.py` | 25+ | Intent classification, grounded context |
 | `test_accessibility.py` | 35+ | ARIA, skip-nav, headings, reduced-motion |
-| `test_google_services.py` | 35+ | All 7 Google services mock verification |
+| `test_google_services.py` | 20+ | All Google services mock verification |
+| `test_google_services_mocked.py` | 35+ | Live connection mocking, fallback paths |
 | `test_analytics.py` | 10+ | Staff dashboard structure |
 | `test_maps.py` | 10+ | Distance calculations, waypoints |
 | `test_integration.py` | 12+ | Multi-service pipelines |
@@ -172,6 +173,12 @@ pytest tests/ -v --cov=app --cov-report=term-missing
 | `test_cloud_logging.py` | 15+ | Logging resilience |
 | `test_staff_advisor.py` | 15+ | AI advisor fallbacks |
 | `test_performance.py` | 10+ | Latency benchmarks, throughput |
+| `test_ai_engine_edge.py` | 10+ | AI engine edge cases |
+| `test_crowd_engine_edge.py` | 10+ | Crowd engine edge cases |
+| `test_decision_engine_edge.py` | 10+ | Decision engine edge cases |
+| `test_config_validators.py` | 5+ | Config validation rules |
+| `test_main_edge.py` | 5+ | Application startup edge cases |
+| `test_middleware_edge.py` | 5+ | Rate limiter edge cases |
 
 ---
 
@@ -228,9 +235,12 @@ CrowdPulse/
 │   ├── index.html              # SPA with full ARIA support
 │   ├── css/style.css           # Premium design system
 │   └── js/app.js               # Client-side logic
-├── tests/                      # 302 tests across 15 test files
+├── tests/                      # 366 tests across 21 test files
+├── .github/workflows/ci.yml   # GitHub Actions CI pipeline
 ├── Dockerfile                  # Multi-stage, non-root
+├── pyproject.toml              # Modern Python project configuration
 ├── requirements.txt            # Pinned dependencies
+├── .editorconfig               # Editor formatting rules
 ├── .env.example                # Environment template
 ├── SECURITY.md                 # Security policy documentation
 ├── ACCESSIBILITY.md            # WCAG 2.1 AA compliance statement
